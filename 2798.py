@@ -29,3 +29,24 @@ for i in range(len(cards)-2):
         break
 
 print(result)
+
+
+''' 최단시간 답안 참조
+def Black_Jack(n, m, cards):
+    t = set()
+    for i in range(n-2):
+        for j in range(i+1, n-1):
+            for k in range(j+1, n):
+                sum = cards[i] + cards[j] + cards[k]
+                if sum <= m:
+                    t.add(sum)
+                    break
+                elif sum == m:
+                    return sum
+
+    return max(t)
+
+N, M = map(int, input().split())
+C = sorted(list(map(int, input().split())), reverse=True)
+print(Black_Jack(N, M, C))
+'''
