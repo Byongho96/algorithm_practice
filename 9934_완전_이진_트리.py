@@ -1,24 +1,18 @@
-# 68ms
-# 이진트리 개념을 바탕으로 한, IQ테스트??
-import sys
-input = sys.stdin.readline
+# 중위 순회로 입력값 트리 만들기
+def inorder(cur):
+    global last
+    if cur <= 2**K - 1:
+        inorder(2 * cur)
+        tree[cur] = nums[last]
+        last += 1
+        inorder(2 * cur + 1)
 
 K = int(input())
-nums = list(map(int, input().rstrip().split()))
-levels = [[] for _ in range(K)]
+nums = list(map(int, input().split()))
 
-def find_level(level, arr):
-    N = len(arr)
-    mid = N//2
-    levels[level].append(arr[mid])
-    if N == 1:
-        return
-    find_level(level + 1, arr[:mid])
-    find_level(level + 1, arr[mid+1:])
-    return
-
-
-find_level(0, nums)
+tree = [0] * (2**K)
+last = 0
+inorder(1)
 
 for i in range(K):
-    print(*levels[i])
+    print(*tree[2**i:2**(i+1)])
