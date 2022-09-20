@@ -1,39 +1,49 @@
-
 import sys
-sys.stdin = open('input.txt','r',encoding='UTF-8')
+input = sys.stdin.readline
 
-def postorder_ope(cur):                  # 후위순위로 돌면서 결과값을 연산하는 함수
-    if ch1[cur]:                            # 자식노드가 있으면
-        left = postorder_ope(ch1[cur])          # 왼쪽 자식에 대해 재귀
-        right = postorder_ope(ch2[cur])         # 오른쪽 자식에 대해 재귀
-        if item[cur] == '+':                    # 받은값을 연산자에 따라 연산
-            return left + right
-        elif item[cur] == '-':
-            return left - right
-        elif item[cur] == '*':
-            return left * right
-        else:
-            return left // right
-    return item[cur]                        # 리프노드이면, 자기 숫자 반환
 
-for tc in range(1, 11):
-    N = int(input())
+def solution(n, paths, gates, summits):
 
-    item = [0] * (N + 1)                    # 노드의 값을 저장할 리스트
-    ch1 = [0] * (N + 1)                     # 왼쪽 자식노드 인덱스를 저장할 리스트
-    ch2 = [0] * (N + 1)                     # 오른쪽 자식노드 인덱스를 저장할 리스트
-    for _ in range(N):
-        tmp = input().split()                   # 입력받은 값의 길이에 따라, 적절하게 저장
-        if len(tmp) == 4:
-            i, ope, c1, c2 = tuple(tmp)
-            i, c1, c2 = map(int, (i, c1, c2))
-            ch1[i] = c1
-            ch2[i] = c2
-            item[i] = ope
-        else:
-            i, it = map(int, tmp)
-            item[i] = it
+    def backtracking(v):
+        nonlocal mx_intensity
+        nonlocal the_summit
+        # 종료조건
+        if v in gates:
+            if visited[v] < mx_intensity:
+                mx_intensity = visited[v]
+                the_summit = summit
+            return
+        # 가지치기
+        if visited[v] > mx_intensity:
+            return
+        elif mx_intensity == mn_intensity:
+            return
+        # 후보군 출력
+        for w in adjLst[v]:
+            if not (visited[w[0]] or w[0] in summits) :
+                visited[w[0]] = max(visited[v], w[1])
+                backtracking(w[0])
+                visited[w[0]] = 0
 
-    result = postorder_ope(1)               # 함수 돌리기
+    adjLst = [[] for _ in range(n + 1)]
+    mn_intensity = 10000001
+    for path in paths:
+        a, b, d = path[0], path[1], path[2]
+        adjLst[a].append((b, d))
+        adjLst[b].append((a, d))
+        if d < mn_intensity:
+            mn_intensity = d
 
-    print(f'#{tc} {result}')
+    mx_intensity = 10000001
+    the_summit = 0
+    for summit in summits:
+        visited = [0] * (n + 1)
+        visited[summit] = 1
+        backtracking(summit)
+        if mx_intensity == mn_intensity:
+            break
+
+    answer = [the_summit, mx_intensity]
+    return answer
+
+print(solution(7, [[1, 2, 5], [1, 4, 1], [2, 3, 1], [2, 6, 7], [4, 5, 1], [5, 6, 1], [6, 7, 1]], [3, 7], [1, 5]))
