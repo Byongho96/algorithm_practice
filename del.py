@@ -1,49 +1,37 @@
-import sys
-input = sys.stdin.readline
+T = int(input())
 
+for tc in range(1, T+1):
+    binary_digit = int(input(), 2)
+    # print(binary_digit)
+    trit = list(map(int, input()))
 
-def solution(n, paths, gates, summits):
+    flag = 0
+    for i in range(len(trit)):
+        # 한자리만 바뀐 3진수
+        for j in (0, 1, 2):
+            if trit[i] == j:
+                continue
+            trit_copy = trit[:]
+            trit_copy[i] = j
+            # print(trit_copy)
 
-    def backtracking(v):
-        nonlocal mx_intensity
-        nonlocal the_summit
-        # 종료조건
-        if v in gates:
-            if visited[v] < mx_intensity:
-                mx_intensity = visited[v]
-                the_summit = summit
-            return
-        # 가지치기
-        if visited[v] > mx_intensity:
-            return
-        elif mx_intensity == mn_intensity:
-            return
-        # 후보군 출력
-        for w in adjLst[v]:
-            if not (visited[w[0]] or w[0] in summits) :
-                visited[w[0]] = max(visited[v], w[1])
-                backtracking(w[0])
-                visited[w[0]] = 0
+            # 3진수 -> 10진수
+            digit = 0
+            for t in trit_copy:
+                digit = digit*3 + t
+            # print(digit)
 
-    adjLst = [[] for _ in range(n + 1)]
-    mn_intensity = 10000001
-    for path in paths:
-        a, b, d = path[0], path[1], path[2]
-        adjLst[a].append((b, d))
-        adjLst[b].append((a, d))
-        if d < mn_intensity:
-            mn_intensity = d
-
-    mx_intensity = 10000001
-    the_summit = 0
-    for summit in summits:
-        visited = [0] * (n + 1)
-        visited[summit] = 1
-        backtracking(summit)
-        if mx_intensity == mn_intensity:
+            # xor연산 다를 경우에만 1
+            # 따라서 1이 하나만 존재한다면 정답
+            result = bin(binary_digit ^ digit)[2:].count('1')
+            if result == 1:
+                print(f'#{tc} {digit}')
+                flag = 1
+                break
+        if flag:
             break
 
-    answer = [the_summit, mx_intensity]
-    return answer
 
-print(solution(7, [[1, 2, 5], [1, 4, 1], [2, 3, 1], [2, 6, 7], [4, 5, 1], [5, 6, 1], [6, 7, 1]], [3, 7], [1, 5]))
+
+
+
