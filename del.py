@@ -1,37 +1,57 @@
-T = int(input())
+import sys
+from copy import deepcopy
 
-for tc in range(1, T+1):
-    binary_digit = int(input(), 2)
-    # print(binary_digit)
-    trit = list(map(int, input()))
+input = sys.stdin.readline
+dx = [-1, -1, 0, 1, 1, 1, 0, -1]
+dy = [0, -1, -1, -1, 0, 1, 1, 1]
 
-    flag = 0
-    for i in range(len(trit)):
-        # 한자리만 바뀐 3진수
-        for j in (0, 1, 2):
-            if trit[i] == j:
-                continue
-            trit_copy = trit[:]
-            trit_copy[i] = j
-            # print(trit_copy)
+def dfs(x, y, d, cnt):
+    global ans, a, fish
+    move_fish(x, y)
+    while True:
+        nx, ny = x + dx[d], y + dy[d]
+        if not 0 <= nx < 4 or not 0 <= ny < 4:
+            ans = max(ans, cnt)
+            return
+        if not a[nx][ny]:
+            x, y = nx, ny
+            continue
 
-            # 3진수 -> 10진수
-            digit = 0
-            for t in trit_copy:
-                digit = digit*3 + t
-            # print(digit)
+        temp_a, temp_fish = deepcopy(a), deepcopy(fish)
+        temp1, temp2 = fish[a[nx][ny][0]], a[nx][ny]
+        fish[a[nx][ny][0]], a[nx][ny] = [], []
+        dfs(nx, ny, temp2[1], cnt + temp2[0] + 1)
+        a, fish = temp_a, temp_fish
+        fish[a[nx][ny][0]], a[nx][ny] = temp1, temp2
+        x, y = nx, ny
 
-            # xor연산 다를 경우에만 1
-            # 따라서 1이 하나만 존재한다면 정답
-            result = bin(binary_digit ^ digit)[2:].count('1')
-            if result == 1:
-                print(f'#{tc} {digit}')
-                flag = 1
+
+def move_fish(sx, sy):
+    for i in range(16):
+        if fish[i]:
+            x, y = fish[i][0], fish[i][1]
+            for _ in range(9):
+                nx, ny = x + dx[a[x][y][1]], y + dy[a[x][y][1]]
+                if not 0 <= nx < 4 or not 0 <= ny < 4 or (nx == sx and ny == sy):
+                    a[x][y][1] = (a[x][y][1] + 1) % 8
+                    continue
+                if a[nx][ny]:
+                    fish[a[nx][ny][0]] = [x, y]
+                a[nx][ny], a[x][y] = a[x][y], a[nx][ny]
+                fish[i] = [nx, ny]
                 break
-        if flag:
-            break
 
 
+a = [[] for _ in range(4)]
+fish = [[] for _ in range(16)]
+for i in range(4):
+    temp = list(map(int, input().split()))
+    for j in range(0, 7, 2):
+        a[i].append([temp[j]-1, temp[j+1]-1])
+        fish[temp[j]-1] = [i, j // 2]
 
-
-
+ans = 0
+d, cnt = a[0][0][1], a[0][0][0] + 1
+fish[a[0][0][0]], a[0][0] = [], []
+dfs(0, 0, d, cnt)
+print(ans)
