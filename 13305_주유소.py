@@ -1,23 +1,20 @@
+# 160ms
 import sys
 input = sys.stdin.readline
 
 N = int(input())
-distance = list(map(int, input().split()))
+road = [0] + list(map(int, input().split()))
 oil = list(map(int, input().split()))
+oil[-1] = 0                 # 마지막 주유소는 가장 최소 0원
 
-point = N - 1                   # 마지막 도시는 알 필요 없음
+mn = oil[0]                 # 초기 최솟값은 첫번째 주유소
 price = 0
-while True:
-    mn = 1000000001
-    pre_point = point           # 끝지점 저장
-    for i in range(pre_point):  # 처음부터 지점까지 스캔
-        if oil[i] < mn:             # 최솟값 저장
-            mn = oil[i]
-            point = i
-        if oil[i] == 1:
-            break
-    price += sum(distance[point:pre_point]) * mn
-    if not point:
-        break
+distance = 0
+for i in range(1, N):       # 진행하면서 최솟값의 주유소를 만날때마다 가격 업데이트
+    distance += road[i]
+    if oil[i] < mn:
+        price += distance * mn
+        mn = oil[i]
+        distance = 0
 
 print(price)
