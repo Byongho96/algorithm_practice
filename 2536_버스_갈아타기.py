@@ -1,105 +1,93 @@
+# PyPy3 502420KB, 2208 ms
 from collections import deque
-from pprint import pprint
 import sys
 input = sys.stdin.readline
 
-def bfs(si, sj):
-    visited = [[0] * (M + 1) for _ in range(N + 1)]
+def bfs(froms, ends):
+    visited = [0] * (B + 1)
     q = deque()
 
-    visited[si][sj] = 1
-    q.append((si, sj))
+    for v in froms:
+        visited[v] = 1
+        q.append(v)
 
     while q:
-        i, j = q.popleft()
-        # print(i, j)
-        # print(adjLst[i][j])
-        for ni, nj in adjLst[i][j]:
-            if not visited[ni][nj]:
-                if ni == ei and nj == ej:
-                    return visited[i][j]
-                visited[ni][nj] = visited[i][j] + 1
-                q.append((ni, nj))
+        v = q.popleft()
+        if v in ends:           # for문 안에 넣으려면 시작지랑 목적지랑 같은 버스 노선 안에 있을 때를 고려해서 처리해야 한다
+            return visited[v]
+        for w in adjLst[v]:
+            if not visited[w]:
+                visited[w] = visited[v] + 1
+                q.append(w)
 
+N, M = map(int, input().split())
+B = int(input())
 
-M, N = map(int, input().split())
-K = int(input())
-
-direction = [0] * (K + 1)
-starts = [0] * (K + 1)
-ends = [0] * (K + 1)
-for _ in range(K):
+# 버스노선 입력받기
+d = [0] * (B + 1)                       # 방향(가로:0, 세로:1)
+starts = [[] for _ in range(B + 1)]     # 버스의 시작점
+ends = [[] for _ in range(B + 1)]       # 버스의 종점
+for _ in range(B):
     i, j1, i1, j2, i2 = map(int, input().split())
-    if j1 == j2:        # 세로방향
-        direction[i] = 1
-        if i1 <= i2:
-            starts[i] = (i1, j1)
-            ends[i] = (i2, j2)
-        else:
-            starts[i] = (i2, j2)
-            ends[i] = (i1, j1)
-    else:               # 가로방향
-        if j1 <= j2:
-            starts[i] = (i1, j1)
-            ends[i] = (i2, j2)
-        else:
-            starts[i] = (i2, j2)
-            ends[i] = (i1, j1)
-
-
+    if i1 == i2:                            # 가로 방향
+        if j1 > j2:                             # 열 번호가 큰게 종점
+            j1, j2 = j2, j1
+    else:                                   # 세로 방향
+        d[i] = 1
+        if i1 > i2:                             # 행 번호가 큰게 종점
+            i1, i2 = i2, i1
+    starts[i] = [i1, j1]
+    ends[i] = [i2, j2]
 sj, si, ej, ei = map(int, input().split())
 
-# 인접 리스트 만들기
-# 규칙 1. 노드: 서로 다른 방향의 노선이 만나는 점은 노드
-# 규칙 2. 노드: 서로 같은 방향의 한 노선 끝 지점이 다른 노선에 있으면 노드
-# 규칙 3. 노드: 시작 지점과 끝 지점도 노드
-# 규칙 4. 엣지: 같은 노선 위에 모든 노드들은 연결
-adjLst = [[[] for _ in range(M + 1)] for _ in range(N + 1)]
-for idx in range(1, K + 1):
-    d = direction[idx]
-    fi, fj = starts[idx]
-    li, lj = ends[idx]
+# 그래프 만들기
+adjLst = [[] for _ in range(B + 1)] # 인접리스트 정보
+froms = []                          # 출발지를 포함하는 버스 노선 리스트
+destinations = []                   # 도착지를 포함하는 버스 노선 리스트
+for i in range(1, B + 1):           # 이중 for문으로 2개의 버스 노선 조합을 모두 탐색
+    d1 = d[i]
+    i1, j1 = starts[i]
+    i2, j2 = ends[i]
+    for j in range(i + 1, B + 1):
+        d3 = d[j]
+        i3, j3 = starts[j]
+        i4, j4 = ends[j]
+        if not d1:                  # 가로
+            if not d3 and i1 == i3:     # 가로 - 가로
+                if j4 < j1 or j2 < j3:      # 겹치지 않을 경우,
+                    pass
+                else:                       # 겹칠 경우
+                    adjLst[i].append(j)
+                    adjLst[j].append(i)
+            else:                       # 가로 - 세로
+                if i3 <= i1 <= i4 and j1 <= j3 <= j2:   # 겹칠 경우
+                    adjLst[i].append(j)
+                    adjLst[j].append(i)
+        else:                       # 세로
+            if not d3:                  # 세로 - 가로
+                if i1 <= i3 <= i2 and j3 <= j1 <= j4:   # 겹칠 경우
+                    adjLst[i].append(j)
+                    adjLst[j].append(i)
+            elif j1 == j3:              # 세로 - 세로
+                if i4 < i1 or i2 < i3:      # 겹치지 않을 경우,
+                    pass
+                else:                       # 겹칠 경우
+                    adjLst[i].append(j)
+                    adjLst[j].append(i)
 
-    nodes = []
-    for bus in range(1, K + 1):
-        if bus == idx:
-            pass
-        elif direction[bus] == d:   # 같은 방향 노선일 경우
-            fi2, fj2 = starts[bus]
-            li2, lj2 = ends[bus]
-            if d and fj == fj2:                     # 세로 방향
-                if fi2 <= fi <= li2:
-                    nodes.append((fi, fj))
-                if fi2 <= li <= li2:
-                    nodes.append((li, lj))
-            elif not d and fi == fi2:               # 가로 방향
-                if fj2 <= fj <= lj2:
-                    nodes.append((fi, fj))
-                if fj2 <= lj <= lj2:
-                    nodes.append((li, lj))
-        else:                       # 다른 방향 노선일 경우
-            fi2, fj2 = starts[bus]
-            li2, lj2 = ends[bus]
-            if d and fi <= fi2 <= li:                       # 세로 방향
-                if fj2 <= fj <= lj2:
-                    nodes.append((fi2, fj))
-            elif not d and fj <= fj2 <= lj:                       # 가로방향
-                if fi2 <= fi <= li2:
-                    nodes.append((fi, fj2))
-    if d:
-        if sj == fj and fi <= si <= li:
-            nodes.append((si, sj))
-        if ej == fj and fi <= ei <= li:
-            nodes.append((ei, ej))
-    else:
-        if si == fi and fj <= sj <= lj:
-            nodes.append((si, sj))
-        if ei == fi and fj <= ej <= lj:
-            nodes.append((ei, ej))
+    # 버스 노선이 출발지와 목적지를 포함하는지 여부 체크
+    if not d1:                      # 현재 버스 노선이 가로 방향일 때,
+        if i1 == si and j1 <= sj <= j2:
+            froms.append(i)
+        if i1 == ei and j1 <= ej <= j2:
+            destinations.append(i)
+    else:                           # 현재 버스 노선이 새로 방향일 때,
+        if j1 == sj and i1 <= si <= i2:
+            froms.append(i)
+        if j1 == ej and i1 <= ei <= i2:
+            destinations.append(i)
 
+# print(adjLst)
+# print(froms, destinations)
+print(bfs(froms, destinations))
 
-    for i, j in nodes:
-        adjLst[i][j].extend(nodes)
-
-# bfs 탐색
-print(bfs(si, sj))
