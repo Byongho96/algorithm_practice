@@ -18,3 +18,6 @@ for _ in range(T):
     # M C M - N
     memo = [0] * 31
     print(factorial(M) // factorial(M - N) // factorial(N))
+
+    # M 개 중에서 N개를 뽑는 경우의 수
+    # M C N
