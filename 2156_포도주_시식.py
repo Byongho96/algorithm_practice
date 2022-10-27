@@ -13,17 +13,22 @@ for i in range(N):
 
 # 참고한 블로그: https://yabmoons.tistory.com/m/512
 
+# 주어진 포도잔의 길이가 1일 경우
 if N == 1:
     print(juices[0])
 
+# 주어진 포도잔의 길이가 2일 경우
 elif N == 2:
     print(juices[0] + juices[1])
 
+# 주어진 포도잔의 길이가 3이상일 경우
 else:
-    DP = [0] * N
-    DP[0] = juices[0]
+    DP = [0] * N                # DP배열 선언
+    DP[0] = juices[0]           # DP[:3]까지 초깃값 셋팅
     DP[1] = juices[0] + juices[1]
     DP[2] = sum(juices[:3]) - min(juices[:3])
+    
+    # 메인 아이디어
     for i in range(3, N):
         DP[i] = max(DP[i-1], DP[i-2] + juices[i], DP[i-3] + juices[i-1] + juices[i])
 
