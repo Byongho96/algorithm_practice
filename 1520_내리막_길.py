@@ -5,27 +5,28 @@ sys.stdin = open('input.txt', 'r')
 sys.setrecursionlimit(3*500*500)
 
 # DP배열 채우는 순서를 파악할 수 없음.
-# # 4. memo2
-# N, M = map(int, input().split())
-# arr = [[0] * (M + 2)] + [[0] + list(map(int, input().split())) + [0] for _ in range(N)] + [[0] * (M + 2)]
-#
-# memo = [[-1] * (M + 2) for _ in range(N + 2)]
-#
-# def memoization(i, j):
-#     if i == 1 and j == 1:
-#         return 1
-#     if memo[i][j] != -1:
-#         return memo[i][j]
-#     else:
-#         memo[i][j] = 0
-#         for di, dj in ((1, 0), (0, 1), (-1, 0), (0, -1)):
-#             ni = i + di
-#             nj = j + dj
-#             if arr[i][j] < arr[ni][nj]:
-#                 memo[i][j] += memoization(ni, nj)
-#         return memo[i][j]
-#
-# print(memoization(N, M))
+# 4. memo2
+N, M = map(int, input().split())
+# 아래의 for문 안 if문에서 ni, nj가 arr범위 안에 있는지 확인하는 조건문을 줄이고자, 입력 배열을 0으로 감쌌다.
+arr = [[0] * (M + 2)] + [[0] + list(map(int, input().split())) + [0] for _ in range(N)] + [[0] * (M + 2)]
+
+memo = [[-1] * (M + 2) for _ in range(N + 2)]   # memo[i][j]에 대해 연산이 수행된 값이 0일 수 있기 때문에, 구분을 위해서 초깃값을 -1로 지정
+
+def memoization(i, j):
+    if i == 1 and j == 1:   # 베이스 조건: 출발지에서 출발지까지의 경로는 한개
+        return 1
+    if memo[i][j] != -1:    # 이미 계산된 memo값이 있을 경우, 해당 값을 반환
+        return memo[i][j]
+    else:
+        memo[i][j] = 0                                          # 현재 위치에 대해 연산을 수행하므로 0으로 일단 수정
+        for di, dj in ((1, 0), (0, 1), (-1, 0), (0, -1)):   # 상, 하, 좌, 우 4방향 탐색
+            ni = i + di
+            nj = j + dj
+            if arr[i][j] < arr[ni][nj]:                         # 현재 위치가 주변 위치에 비해 낮을 경우,
+                memo[i][j] += memoization(ni, nj)                   # 현재 위치까지의 경로 수 += 주변 위치까지의 경로 수
+        return memo[i][j]                                       # 4방향에 대해 탐색이 이루어진 결과값 반환
+
+print(memoization(N, M))
 
 # # 3. memo
 # N, M = map(int, input().split())
