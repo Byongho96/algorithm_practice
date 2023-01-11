@@ -1,3 +1,24 @@
+N, M = map(int, input().split())
+
+def backtracking(n):
+    # 종료조건
+    if n == M:
+        print(*lst)
+        return
+    
+    # 후보군 선택
+    for num in range(1, N + 1):
+        lst[n] = num
+        backtracking(n + 1)
+    return
+
+
+lst = [0] * M
+backtracking(0)
+
+
+
+#########################################################3
 # 2976ms...
 import sys
 input = sys.stdin.readline
