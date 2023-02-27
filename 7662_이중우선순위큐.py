@@ -1,66 +1,92 @@
-import sys
-import heapq
-input = sys.stdin.readline
+# 우선순위 큐 구현을 위해 참고한 블로그 글: https://daimhada.tistory.com/108
 
-################################################################################################
+class MaxHeap:
 
-# # nlargest 사용: 시간초과
-# for _ in range(int(input())):
-#     K = int(input())
-#     heap = []
-#
-#     for _ in range(K):
-#         s, N = input().rstrip().split()
-#         N = int(N)
-#         if s == 'I':
-#             heapq.heappush(heap, N)
-#         elif heap:
-#             if N < 0:
-#                 heapq.heappop(heap)
-#             else:
-#                 heap.pop(heap.index(heapq.nlargest(1, heap)[0]))
-#
-#     if heap:
-#         print(heapq.nlargest(1, heap)[0], heap[0])
-#     else:
-#         print('EMPTY')
+    # 생성자 함수
+    def __init__(self):
+        self.queue = []
 
+    # 삽입 함수
+    def insert(self, n):
+        self.queue.append(n)
+        current_index = len(self.queue) - 1
+        while 0 < current_index:
+            parent_index = self.parent(current_index)
+            if self.queue[parent_index] < self.queue[current_index]:
+                self.swap(parent_index, current_index)
+                current_index = parent_index
+            else:
+                break
 
-################################################################################################
+    # 삭제 함수
+    def delete(self):
+        last_index = len(self.queue) - 1
+        if last_index < 0:
+            return -1
+        self.swap(0, last_index)
+        max_value = self.queue.pop()
+        self.maxHeapify(0)
+        return max_value
+    
 
-# ## 삭제여부를 표시하는 리스트 배열,...
-# ## 7380ms
-# for _ in range(int(input())):
-#     K = int(input())
-#     max_heap = []
-#     min_heap = []
-#     exist = [1] * K                                   # i번째 입력한 숫자가 존재하는 지 여부를 체크하는 리스트
-#     for i in range(K):
-#         S, N = input().rstrip().split()
-#         N = int(N)
-#         if S == 'I':
-#             heapq.heappush(max_heap, (-N, i))             # index와 함께 튜플로 만들어서 push
-#             heapq.heappush(min_heap, (N, i))
-#         elif N == 1:
-#             while max_heap and not exist[max_heap[0][1]]: # exist array를 확인하면서, 실제 존재하는 최댓값이 나올때까지 pop
-#                 heapq.heappop(max_heap)
-#             if max_heap:                                  # 실제 최댓값을 팝하면, exist array 업데이트
-#                 exist[heapq.heappop(max_heap)[1]] = 0
-#         else:
-#             while min_heap and not exist[min_heap[0][1]]: # exist array를 확인하면서, 실제 존재하는 최솟값이 나올때까지 pop
-#                 heapq.heappop(min_heap)
-#             if min_heap:                                  # 실제 최솟값을 팝하면, exist array 업데이트
-#                 exist[heapq.heappop(min_heap)[1]] = 0
+    # heapify 정렬 함수
+    def maxHeapify(self, i):
+        left_index  = self.left_child(i)
+        right_index = self.right_child(i)
+        last_index = len(self.queue) - 1
 
-#     # print(max_heap, min_heap)                       # 마지막 한번 더 동기화, 마지막 연산이 끝나고 나서 둘 중하나의 힙을 업데이트 해야 함
-#     while max_heap and not exist[max_heap[0][1]]:
-#         heapq.heappop(max_heap)
-#     while min_heap and not exist[min_heap[0][1]]:
-#         heapq.heappop(min_heap)
-#
-#     if min_heap and max_heap:                         # 적절한 값 print
-#         print(-max_heap[0][0], min_heap[0][0])
-#     else:
-#         print('EMPTY')
+        max_index = i
+        if left_index <= last_index and self.queue[max_index] < self.queue[left_index]:
+            max_index = left_index
+        if right_index <= last_index and self.queue[max_index] < self.queue[right_index]:
+            max_index = right_index
+
+        if max_index != i:
+            self.swap(i, max_index)
+            self.maxHeapify(max_index)
+
+    def swap(self, i, j):
+        self.queue[i], self.queue[j] = self.queue[j], self.queue[i]
+    
+    def parent(self, i):
+        return (i - 1) // 2
+    
+    def left_child(self, i):
+        return 2 * i + 1
+    
+    def right_child(self, i):
+        return 2 * i + 2
+
+    def __str__(self):
+        return str(self.queue)
+
+if __name__ == '__main__':
+
+    T = int(input())    # 테스트 횟수
+    for _ in range(T):
+        max_heap = MaxHeap()
+        print(max_heap)
+        N = int(input())    # 연산 갯수
+        for _ in range(N):
+            operation = input().split()
+            mode, number = operation[0], int(operation[1])
+
+            if mode == 'I':
+                max_heap.insert(number)
+                continue
+            
+            if number > 0:
+                max_heap.delete()
+                continue
+            
+            
+        mx = -(2**32 + 1)
+        mn = (2**32 + 1)
+
+        
+        if mx == -(2**32 + 1):
+            print('EMPTY')
+        else:
+            print(mx, mn)
 
 
