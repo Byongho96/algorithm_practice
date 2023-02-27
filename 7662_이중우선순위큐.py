@@ -59,6 +59,11 @@ class MaxHeap:
 
     def __str__(self):
         return str(self.queue)
+    
+    def __iter__(self):
+        
+    
+
 
 if __name__ == '__main__':
 
