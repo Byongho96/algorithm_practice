@@ -1,0 +1,18 @@
+{
+  "python.pythonPath": "venv\\Scripts\\python.exe",
+  "python.linting.pep8Enabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.linting.flake8Enabled": false,
+  "python.linting.enabled": true,
+  "python.formatting.provider": "black",
+  "python.formatting.blackArgs": ["--line-length", "120"],
+  "python.linting.flake8Args": ["--max-line-length=120", "--ignore=E402"],
+  "python.formatting.autopep8Args": ["--max-line-length=180"],
+  "python.linting.pylintArgs": [
+    "--max-line-length=180",
+    "--disable=W0105",
+    "--disable=C0103",
+    "--disable=C0114",
+    "--disable=W2402"
+  ]
+}
