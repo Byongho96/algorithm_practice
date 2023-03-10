@@ -1,45 +1,31 @@
-# 448ms
 from collections import defaultdict
+import sys
+read = sys.stdin.readline
 
-month_to_minutes = [0,
-         24*60 * (0),
-         24*60 * (1*31),
-         24*60 * (1*31 + 2*28),
-         24*60 * (1*31 + 2*28 + 3*31),
-         24*60 * (1*31 + 2*28 + 3*31 + 4*30),
-         24*60 * (1*31 + 2*28 + 3*31 + 4*30 + 5*31),
-         24*60 * (1*31 + 2*28 + 3*31 + 4*30 + 5*31 + 6*30),
-         24*60 * (1*31 + 2*28 + 3*31 + 4*30 + 5*31 + 6*30 + 7*31),
-         24*60 * (1*31 + 2*28 + 3*31 + 4*30 + 5*31 + 6*30 + 7*31 + 8*31),
-         24*60 * (1*31 + 2*28 + 3*31 + 4*30 + 5*31 + 6*30 + 7*31 + 8*31 + 9*30),
-         24*60 * (1*31 + 2*28 + 3*31 + 4*30 + 5*31 + 6*30 + 7*31 + 8*31 + 9*30 + 10*31),
-         24*60 * (1*31 + 2*28 + 3*31 + 4*30 + 5*31 + 6*30 + 7*31 + 8*31 + 9*30 + 10*31 + 11*30),
-         ]
+month_to_date = [0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
 
 if __name__ == '__main__':
-    N, DURATION, FINE = input().split()
+    # 상숫값 input
+    N, D, FINE = read().rstrip().split()
 
     N = int(N)
     FINE = int(FINE)
-
-    DAYS, HOURMINUTES  = DURATION.split('/')
-    HOURS, MINUTES = HOURMINUTES.split(':')
-    DURATION = int(DAYS) * 24 * 60 + int(HOURS) * 60 + int(MINUTES)
+    DURATION = int(D[:3]) * 24 * 60 + int(D[4:6]) * 60 + int(D[7:])
     
-    fines = defaultdict(int)
-    book = {}
+    fines = defaultdict(int)    # {이름: 벌금 누적액}
+    book = {}                   # {이름_부품: 빌린 시각(분)}
     for _ in range(N):
-        date, time, part, nickname = input().split()
-        year, month, days = map(int, date.split('-'))
-        hours, minutes = map(int, time.split(':'))
-
-        timestamp = month_to_minutes[month] + (days-1) * 24 * 60 + hours * 60 + minutes
+        date, time, part, nickname = read().rstrip().split()
+        month, days = int(date[5:7]), int(date[8:])
+        hours, minutes = int(time[:2]), int(time[3:])
+        timestamp = month_to_date[month] * 24 * 60  + days * 24 * 60 + hours * 60 + minutes   # (days-1)로 계산할 경우, 틀렸습니다
         borrowed_timestamp = book.pop(f'{nickname}_{part}', None)
-        if borrowed_timestamp:
+
+        if borrowed_timestamp:  # 빌린 기록이 있다면 -> 반납
             time_delta = timestamp - borrowed_timestamp
             if time_delta > DURATION:
                 fines[nickname] += (time_delta - DURATION) * FINE
-        else:
+        else:                   # 빌린 기록이 없다면 -> 대출
             book[f'{nickname}_{part}'] = timestamp
     
     if fines:
@@ -93,4 +79,5 @@ if __name__ == '__main__':
 #         print(*ele)
 # else:
 #     print(-1)
+
 
