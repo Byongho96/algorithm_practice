@@ -1,8 +1,0 @@
-{
-  "include": ["linting할 경로"],
-  "exclude": ["linting 제외할 경로"],
-  "reportTypeshedErrors": true,
-  "reportMissingImports": false,
-  "pythonVersion": "3.8",
-  "pythonPlatform": "Darwin"
-}
