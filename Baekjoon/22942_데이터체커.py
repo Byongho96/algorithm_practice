@@ -1,3 +1,30 @@
+if __name__ == "__main__":
+    N = int(input())
+
+    points = []
+    for i in range(N):
+        x, r = map(int, input().rstrip().split())
+        points.append((x-r, 1, i))  # 일부로 원이 시작되는 point의 두번째를 1로 설정
+        points.append((x+r, 0, i))  
+
+    points.sort()
+
+    stack = [0] * (2 * N)
+    top = -1
+    for point in points:
+        if point[1] == 1:
+            top += 1
+            stack[top] = point
+        else:
+            pop_point = stack[top]
+            top -= 1
+            if pop_point[-1] != point[-1]:
+                print('NO')
+                break
+    else:
+        print('YES')
+
+
 # 구글링
 import sys
 input = sys.stdin.readline
