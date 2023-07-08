@@ -1,6 +1,66 @@
 from collections import deque
 import heapq
 
+# 다익스트라 개선
+from collections import defaultdict
+import heapq
+
+def dijkstra(N, adjLst, gates, summits):
+    INF = 10000000 + 1  # 최댓값 설정 유의!
+    intensity = [INF] * (N + 1)
+    
+    # 시작점 지정
+    heap = []
+    for gate in gates:
+        intensity[gate] = 0
+        heapq.heappush(heap, (0, gate))
+    
+    answers = []
+    
+    while heap:
+        its, cur = heapq.heappop(heap)
+        
+        # 유효하지 않은 노드 삭제
+        if its < intensity[cur]:
+            continue
+        
+        # 종료조건 (최대조건을 초과했을 경우)
+        if its > INF:
+            return answers
+            
+        # 종료조건 (정상에 도달했을 경우)
+        if cur in summits:
+            answers.append([cur, its])
+            INF = its
+            continue
+                 
+        # 주변 노드 탐색 (출입구가 아닌)
+        for w, adj in adjLst[cur]:
+            new_its = max(its, w)
+            if adj not in gates and new_its < intensity[adj]:
+                intensity[adj] = new_its
+                heapq.heappush(heap, (new_its, adj))
+    
+    return answers
+    
+def solution(n, paths, gates, summits):
+    # 인접 노드 리스틑 생성
+    adjLst = defaultdict(list)
+    for i, j, w in paths:
+        adjLst[i].append((w, j))
+        adjLst[j].append((w, i))
+    
+    # 집합연산으로 바꾼 다음 in 연산 시, 유의미하게 빠름
+    gates = set(gates)
+    summits = set(summits)
+    
+    # Dijkstra
+    answers = dijkstra(n, adjLst, gates, summits)
+    
+    answers.sort(key=lambda x: (x[1], x[0]))
+    
+    return answers[0]
+
 # 다익스트라
 def solution(n, paths, gates, summits):
 
