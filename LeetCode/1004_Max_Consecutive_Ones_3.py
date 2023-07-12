@@ -1,6 +1,6 @@
 class Solution:
     def maxVowels(self, s: str, k: int) -> int:
-	    vowel_set = {'a', 'e', 'i', 'o', 'u'} # in 연산은 집합의 배열보다 빠름
+        vowel_set = {'a', 'e', 'i', 'o', 'u'} # in 연산은 집합의 배열보다 빠름
 
         # 첫 구간 모음 수 계산
         vowels = 0 
