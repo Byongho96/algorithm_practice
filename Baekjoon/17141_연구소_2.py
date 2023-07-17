@@ -1,60 +1,57 @@
-from pprint import pprint
-## 684ms
-from collections import deque
 from itertools import combinations
-import sys
-input = sys.stdin.readline
+from collections import deque
 
-def bfs():
-    # visited = [[0] * (N + 2)for _ in range(N + 2)]    # 나중에 visited배열을 함수 밖에서 사용하기 위해, 상위함수에 정의했음
-    q = deque()
+di = (1, 0, 0, -1)
+dj = (0, 1, -1, 0)
 
-    for sp in comb:
-        q.append(sp)
-        visited[sp[0]][sp[1]] = 1
-
-    i, j = 0, 0
-    while q:
-        i, j = q.popleft()
-        for di, dj in ((1, 0), (0, 1), (-1, 0), (0, -1)):
-            ni = i + di
-            nj = j + dj
-            if arr[ni][nj] != 1 and not visited[ni][nj]:    # [1]로 감싸서, 범위 안 조건식 생략
-                q.append((ni, nj))
-                visited[ni][nj] = visited[i][j] + 1
-
-    # pprint(visited)
-    return visited[i][j] - 1
-
-
-N, M = map(int, input().split())
-# arr를 1로 감싸서 입력 받음
-arr = [[1] * (N + 2)] + [[1] + list(map(int, input().rstrip().split())) + [1] for _ in range(N)] + [[1] * (N + 2)]
-
-# start 포인트 찾기
-start = []
-for i in range(N + 2):
-    for j in range(N + 2):
-        if arr[i][j] == 2:
-            start.append((i, j))
-
-mn = N * N
-for comb in combinations(start, M):  # 백트래킹으로 구현 가능
+def bfs(starts):
     visited = [[0] * (N + 2) for _ in range(N + 2)]
-    result = bfs()
-    if result < mn:
-        flag = False                # 이중 for문을 탈출하기 위한 변수
-        for i in range(1, N + 1):   # arr에서 0인 부분을 visited로 모두 방문하지 않았을 경우, 결과값에서 제외
-            for j in range(1, N + 1):
-                if not arr[i][j] and not visited[i][j]:
-                    flag = True
-                    break
-            if flag:
-                break
-        else:
-            mn = result
+    queue = deque()
+    for si, sj in starts:
+        visited[si][sj] = 1
+        queue.append((si, sj))
 
-if mn == N * N: # 모든 경우의 수에서 방을 다 채울 수 없을 경우, -1 프린트
-    print(-1)
-else:
-    print(mn)
+    num_diffused = len(starts)
+    mx_seconds = 0
+
+    while queue:
+        i, j = queue.popleft()
+        for idx in range(4):
+            ni = i + di[idx]
+            nj = j + dj[idx]
+            
+            # 모두 확산된 경우
+            if num_diffused > num_empty - 1:
+                return mx_seconds
+            
+            # 이미 최소조건을 넘은 경우
+            if mx_seconds > mn_seconds - 1:
+                return N * M
+
+            if arr[ni][nj] != 1 and not visited[ni][nj]:    # 확산 가능하고, 아지 확산되지 않은 곳일 경우
+                visited[ni][nj] = visited[i][j] + 1
+                mx_seconds = max(mx_seconds, visited[i][j])
+                num_diffused += 1
+                queue.append((ni, nj))
+                
+    return N * M
+
+if __name__ == '__main__':
+    N, M = map(int, input().split())
+    arr = [[1] * (N + 2)] + [[1] + list(map(int, input().split())) + [1] for _ in range(N)] + [[1] * (N + 2)]
+
+    spots = []
+    num_empty = 0
+    for i in range(1, N + 1):
+        for j in range(1, N + 1):
+            if not arr[i][j]:
+                num_empty += 1
+            elif arr[i][j] == 2:
+                spots.append((i ,j))
+                num_empty += 1
+
+    mn_seconds = N * M
+    for comb in combinations(spots, M):
+        mn_seconds = min(mn_seconds, bfs(comb))
+
+    print(-1) if mn_seconds == N*M else print(mn_seconds)
