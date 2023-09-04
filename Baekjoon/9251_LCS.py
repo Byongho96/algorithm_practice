@@ -1,19 +1,20 @@
 if __name__ == '__main__':
     string_1 = input()
     string_2 = input()
+    S1 = len(string_1)
+    S2 = len(string_2)
 
-    # 1차원 DP
-    DP = [0] * len(string_1)
+    # make DP
+    DP = [[0] * (S1 + 1) for _ in range(2)]
 
-    for i in range(len(string_2)):
-        target_str = string_2[i]
-        cur_mx = 0
-        for j in range(len(string_1)):
-            if cur_mx < DP[j]:  # 중복 증가를 방지
-                cur_mx = DP[j]
-                continue
-            if string_1[j] == target_str:
-                DP[j] = cur_mx + 1
-        print(DP)
+    # fill DP
+    for i in range(S2):
+        target_char = string_2[i]
+        i %= 2
+        for j in range(S1):
+            if string_1[j] == target_char:
+                DP[i][j + 1] = DP[1 - i][j] + 1
+            else:
+                DP[i][j + 1] = max(DP[i][j], DP[1 - i][j + 1])
 
-    print(max(DP))
+    print(max(DP[1 - S2 % 2]))
