@@ -4,7 +4,7 @@
   "python.linting.pylintEnabled": true,
   "python.linting.flake8Enabled": false,
   "python.linting.enabled": true,
-  "python.formatting.provider": "black",
+  "python.formatting.provider": "none",
   "python.formatting.blackArgs": ["--line-length", "120"],
   "python.linting.flake8Args": ["--max-line-length=120", "--ignore=E402"],
   "python.formatting.autopep8Args": ["--max-line-length=180"],
@@ -14,5 +14,8 @@
     "--disable=C0103",
     "--disable=C0114",
     "--disable=W2402"
-  ]
+  ],
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  }
 }

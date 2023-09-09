@@ -5,9 +5,11 @@
 """
 
 import sys
+
 input = sys.stdin.readline
 
 import heapq
+
 
 # dijkstra which can handle minus cycle
 def dijkstra_detect_minus_cycle(N, adjLst, start, visited):
@@ -17,7 +19,8 @@ def dijkstra_detect_minus_cycle(N, adjLst, start, visited):
 
     # set the start point
     distance[start] = 0
-    heapq.heappush(heap, (start, 0, [0])) # path being used for the tracking minus cycle
+    path = 1  # bit data which record the nodes been visted
+    heapq.heappush(heap, (start, 0, path))
 
     while heap:
         cur, dis, path = heapq.heappop(heap)
@@ -33,23 +36,23 @@ def dijkstra_detect_minus_cycle(N, adjLst, start, visited):
             new_dis = dis + w
             if new_dis < distance[adj]:
                 # Return the function, if there's minus cycle
-                if adj in path:
+                if path >> adj & 1:
                     return True
                 distance[adj] = new_dis
-                new_path = path[:]
-                new_path.append(adj)
+                new_path = path | 1 << adj
                 heapq.heappush(heap, (adj, new_dis, new_path))
 
     return False
 
-if __name__ == '__main__':
-    T  = int(input())
+
+if __name__ == "__main__":
+    T = int(input())
 
     for _ in range(T):
         N, M, W = map(int, input().split())
 
         # make adjacent node list
-        adjLst = [[] for _ in range(N +1)]
+        adjLst = [[] for _ in range(N + 1)]
         for _ in range(M):
             S, E, T = map(int, input().split())
             adjLst[S].append((T, E))
@@ -67,7 +70,7 @@ if __name__ == '__main__':
 
             # print the result
             if result:
-                print('YES')
+                print("YES")
                 break
         else:
-            print('NO')
+            print("NO")
