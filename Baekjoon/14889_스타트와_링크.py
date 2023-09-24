@@ -1,6 +1,8 @@
 # 2nd
 import sys
+
 input = sys.stdin.readline
+
 
 def comb_backtracking(n, idx):
     global mn
@@ -8,11 +10,11 @@ def comb_backtracking(n, idx):
         p1, p2 = 0, 0
         for i in range(N):
             for j in range(N):
-                if i in t1 and j in t1:             # in을 쓸꺼면 집합으로, 더 좋은건 리스트 인덱스로
+                if i in t1 and j in t1:  # in을 쓸꺼면 집합으로, 더 좋은건 리스트 인덱스로
                     p1 += arr[i][j]
-                elif not(i in t1 or j in t1):
+                elif not (i in t1 or j in t1):
                     p2 += arr[i][j]
-        mn = min(mn, abs(p1-p2))
+        mn = min(mn, abs(p1 - p2))
         return
     if N - idx + n < N // 2 or not mn:
         return
@@ -33,7 +35,9 @@ print(mn)
 #######################################################################################################################
 
 import sys
+
 input = sys.stdin.readline
+
 
 def comb_backtracking(n, idx):
     global mn
@@ -41,11 +45,11 @@ def comb_backtracking(n, idx):
         p1, p2 = 0, 0
         for i in range(N):
             for j in range(i + 1, N):
-                if t1[i] and t1[j]:             # 리스트 인덱스 후 반만 탐색!
+                if t1[i] and t1[j]:  # 리스트 인덱스 후 반만 탐색!
                     p1 += arr[i][j] + arr[j][i]
-                elif not(t1[i] or t1[j]):
+                elif not (t1[i] or t1[j]):
                     p2 += arr[i][j] + arr[j][i]
-        mn = min(mn, abs(p1-p2))
+        mn = min(mn, abs(p1 - p2))
         return
     if N - idx + n < N // 2 or not mn:
         return
@@ -66,7 +70,9 @@ print(mn)
 #######################################################################################################################
 # 으아아아아 대단쓰!!!!
 import sys
+
 input = sys.stdin.readline
+
 
 def DFS(L, s, a):
     global res
@@ -75,6 +81,7 @@ def DFS(L, s, a):
         return
     for i in range(a, N):
         DFS(L + 1, s - row[i] - col[i], i + 1)
+
 
 N = int(input())
 gra = [list(map(int, input().split())) for _ in range(N)]
@@ -144,4 +151,3 @@ print(res)
 # start = [0] * (N +1)
 # dfs_while(1, 0)
 # print(mn)
-
