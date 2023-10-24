@@ -18,12 +18,13 @@ def topological_sort():
 
     W = int(input())
 
-    # topological sort
+    # find start
     queue = deque()
     for i in range(1, N + 1):
         if not indegree[i]:
             queue.append(i)
 
+    # topological sort
     start_time = defaultdict(int)
     while queue:
         cur = queue.popleft()
