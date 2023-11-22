@@ -1,49 +1,45 @@
 import sys
-sys.setrecursionlimit(10**6)
+
+sys.setrecursionlimit(10**4)
+
 
 class Node:
     def __init__(self, node):
+        self.val = node[2]
         self.x = node[0]
-        self.y = node[1]
-        self.idx = node[2]
         self.left = None
         self.right = None
-        
-    # 출력 확인용
-    def __str__(self):
-        return str([self.x, self.y, self.idx])
 
-# 전위 순회
+
 def pre_order(node):
     if not node:
         return []
-    
-    answer = [node.idx]
+
+    answer = [node.val]
     answer.extend(pre_order(node.left))
     answer.extend(pre_order(node.right))
-    
+
     return answer
 
-# 후위 순회
+
 def post_order(node):
     if not node:
         return []
-    
+
     answer = post_order(node.left)
     answer.extend(post_order(node.right))
-    answer.append(node.idx)
-    
-    return answer
+    answer.append(node.val)
+
 
 def solution(nodeinfo):
-    # 인덱스(순서) 달아주기
-    for idx, node in enumerate(nodeinfo):
-        node.append(idx + 1)
-    
-    # 정렬
-    nodeinfo.sort(key=lambda x: (-x[1], x[0]))
-    
-    # 트리 만들기
+    # add value
+    for val, node in enumerate(nodeinfo):
+        node.append(val + 1)
+
+    # sort the nodes (from root node)
+    nodeinfo.sort(key=lambda x: (-x[1], -x[0]))
+
+    # make tree
     root = Node(nodeinfo[0])
     for node in nodeinfo[1:]:
         cur_node = root
@@ -60,6 +56,8 @@ def solution(nodeinfo):
                 else:
                     cur_node.right = Node(node)
                     break
-        
-    answer = [pre_order(root), post_order(root)]
-    return answer
+
+    return [pre_order(root), post_order(root)]
+
+
+solution([[5, 3], [11, 5], [13, 3], [3, 5], [6, 1], [1, 3], [8, 6], [7, 2], [2, 2]])
