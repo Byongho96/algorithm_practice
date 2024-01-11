@@ -2,6 +2,7 @@ if __name__ == "__main__":
     N = int(input())
     arr = list(map(int, input().split()))
 
+    # two pointer
     s, e = 0, N - 1
     middle_num = N - 2
     answer = 0

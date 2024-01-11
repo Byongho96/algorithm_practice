@@ -1,4 +1,6 @@
+from typing import List
 from collections import defaultdict
+
 
 class Solution:
     def backtracking(self, W, w, words, letters, score):
@@ -14,37 +16,39 @@ class Solution:
             word = words[i]
 
             # if the word is already used
-            if word['used']:
+            if word["used"]:
                 continue
 
             # check the remaining letters can make the word
             letters_copy = letters.copy()
-            for ltr, cnt in word['letters'].items():
+            for ltr, cnt in word["letters"].items():
                 if cnt > letters_copy[ltr]:
                     break
                 letters_copy[ltr] -= cnt
 
             else:
-                word['used'] = True
-                score += word['score']
+                word["used"] = True
+                score += word["score"]
                 self.backtracking(W, i + 1, words, letters_copy, score)
-                word['used'] = False
-                score -= word['score']
-            
-    def maxScoreWords(self, words: List[str], letters: List[str], score: List[int]) -> int:
+                word["used"] = False
+                score -= word["score"]
+
+    def maxScoreWords(
+        self, words: List[str], letters: List[str], score: List[int]
+    ) -> int:
         # transform words info into dictonary
         W = len(words)
         words_lst = [{} for _ in range(W)]
         for i in range(W):
             word = words[i]
             word_dict = {
-                'used': False,
-                'letters' : defaultdict(int),
-                'score': 0,
+                "used": False,
+                "letters": defaultdict(int),
+                "score": 0,
             }
             for c in word:
-                word_dict['letters'][c] += 1
-                word_dict['score'] += score[ord(c) - ord('a')]
+                word_dict["letters"][c] += 1
+                word_dict["score"] += score[ord(c) - ord("a")]
             words_lst[i] = word_dict
 
         # transform lettes info into dictonary
