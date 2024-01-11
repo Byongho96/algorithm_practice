@@ -5,7 +5,7 @@ input = sys.stdin.readline
 
 def find_min_cycle(V, adjLst):
     INF = 10000 * V * 2
-    distance = [[INF] * (V + 1) for _ in range(V + 1)]
+    distance = tuple([INF] * (V + 1) for _ in range(V + 1))
 
     # set the start
     heap = []
@@ -23,7 +23,7 @@ def find_min_cycle(V, adjLst):
 
         # find the answer
         if cur == start:
-            return print(w)
+            return w
 
         # traverse adjacent
         for adj_w, adj in adjLst[cur]:
@@ -32,16 +32,18 @@ def find_min_cycle(V, adjLst):
                 distance[start][adj] = new_weight
                 heapq.heappush(heap, (new_weight, adj, start))
 
-    return print(-1)
+    return False
 
 
 if __name__ == "__main__":
     V, E = map(int, input().split())
 
     # make adjacent nodes
-    adjLst = [[] for _ in range(V + 1)]
+    adjLst = tuple([] for _ in range(V + 1))
     for _ in range(E):
         i, j, w = map(int, input().split())
         adjLst[i].append((w, j))
 
-    find_min_cycle(V, adjLst)
+    # find the minimum answer
+    answer = find_min_cycle(V, adjLst)
+    print(answer if answer else -1)
