@@ -1,36 +1,46 @@
-from collections import defaultdict
 import heapq
+from collections import defaultdict
+
 
 def solution(operations):
-    
-    max_heap = []
     min_heap = []
-    exist = defaultdict(int)    # 최대힙과 최소힙 동기화를 위한 기록용 dictionary
-    
+    max_heap = []
+    existing = defaultdict(int)
+
     for operation in operations:
         typ, num = operation.split()
         num = int(num)
-        if typ == 'I':
-            heapq.heappush(max_heap, -num)  # heapq는 기본적으로 최소 힙
+
+        # insert number
+        if typ == "I":
             heapq.heappush(min_heap, num)
-            exist[num] += 1
+            heapq.heappush(max_heap, -num)
+            existing[num] += 1
+
+        # delete max number
         elif num == 1:
-            while max_heap and not exist[-max_heap[0]]: # 최소힙과 동기화
+            # synchronize before deletion
+            while max_heap and not existing[-max_heap[0]]:
                 heapq.heappop(max_heap)
             if max_heap:
-                exist[-heapq.heappop(max_heap)] -= 1
+                existing[-heapq.heappop(max_heap)] -= 1
+
+        # delete min number
         else:
-            while min_heap and not exist[min_heap[0]]:  # 최대힙과 동기화
+            # synchronize before deletion
+            while min_heap and not existing[min_heap[0]]:
                 heapq.heappop(min_heap)
             if min_heap:
-                exist[heapq.heappop(min_heap)] -= 1
-    
-    while max_heap and not exist[-max_heap[0]]: # 마지막 동기화
+                existing[heapq.heappop(min_heap)] -= 1
+
+    # synchronization
+    while max_heap and not existing[-max_heap[0]]:
         heapq.heappop(max_heap)
-    while min_heap and not exist[min_heap[0]]:  # 마지막 동기화
+    while min_heap and not existing[min_heap[0]]:
         heapq.heappop(min_heap)
 
+    # return answer
     if max_heap:
-        return [-heapq.heappop(max_heap), heapq.heappop(min_heap)]
+        return [-max_heap[0], min_heap[0]]
     else:
         return [0, 0]
