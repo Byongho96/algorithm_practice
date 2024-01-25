@@ -9,11 +9,15 @@ if __name__ == "__main__":
     costs = [0] + list(map(int, input().split()))
     C = sum(costs)
 
-    # DP[i][j] : j번째 앱까지 i의 cost로 만들 수 있는 최대 바이트
-    DP = [[0] * (N + 1) for _ in range(C + 1)]
-    for i in range(1, C + 1):
-        for j in range(1, N + 1):
-            DP[i][j] = max(DP[i][j - 1], 0 if i - costs[j] < 0 else DP[i - costs[j]][j - 1] + memories[j])
-            if DP[i][j] > M - 1:
-                print(i)
-                exit()
+    # 1D DP
+    DP = [0] * (C + 1)
+
+    # Knapsack
+    answer = C
+    for i in range(1, N + 1):
+        for j in range(C, costs[i] - 1, -1):
+            DP[j] = max(DP[j], DP[j - costs[i]] + memories[i])
+            if DP[j] > M - 1 and j < answer:
+                answer = j
+
+    print(answer)
