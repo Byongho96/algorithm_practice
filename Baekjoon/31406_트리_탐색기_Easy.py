@@ -3,20 +3,26 @@ from typing import Tuple, List
 
 input = sys.stdin.readline
 
-def find_node(leaves: List[List[int]], is_open: List[bool], cur:int, move: int) -> Tuple[bool, int, int]:
-    if move == 0:
-        return (True, 0, cur)
+# recursive function
+def find_node(leaves: List[List[int]], is_open: List[bool], cur:int, remain_move: int) -> Tuple[int, int]:
+    remain_move -= 1
 
+    # found the target folder
+    if remain_move == 0:
+        return (0, cur)
+
+    # the folder is closed
     if not is_open[cur]:
-        return (False, move, cur)
+        return (remain_move, cur)
     
-    for leaf in leaves:
-        move -= 1
-        found, move, node = find_node(leaves, is_open, leaf, move)
-        if found:
-            return (True, move, node)
+    # traverse the sub folders
+    node = cur
+    for leaf in leaves[cur]:
+        remain_move, node = find_node(leaves, is_open, leaf, remain_move)
+        if not remain_move:
+            return (remain_move, node)
 
-    return (False, move, node)
+    return (remain_move, node)
 
 
 def solution(N: int, M: int, leaves: List[List[int]], commands: Tuple[List[int]]) -> List[int]:
@@ -38,13 +44,15 @@ def solution(N: int, M: int, leaves: List[List[int]], commands: Tuple[List[int]]
         move = int(command[1])
         cur_move += move
 
-        if cur_move < 2:
-            cur_move = 2
+        # can't move up more
+        if cur_move < 1:
+            cur_move = 1
             cur_node = leaves[1][0]
         
+        # move the cursoor
         else:
-            found, move, node = find_node(leaves, is_open, 0, cur_move)
-            cur_move -= move
+            remain_move, node = find_node(leaves, is_open, 1, cur_move + 1) # +1 is offset for folder 1
+            cur_move -= remain_move
             cur_node = node
 
         answer.append(cur_node)

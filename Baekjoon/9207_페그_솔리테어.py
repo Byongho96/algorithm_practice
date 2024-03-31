@@ -1,11 +1,11 @@
 import sys
-from typing import List, Tuple
+from typing import List
 
 sys = sys.stdin.readline
 
 DIRECTION = ((1, 0), (-1, 0), (0, 1), (0, -1))
 
-def backtracking(total: int, arr: List[List[str]], removed: int, pins: List[Tuple[str]]) -> int:
+def backtracking(total: int, arr: List[List[str]], removed: int, pins: List[List[str]]) -> int:
     # pruning
     if not pins:
         return removed
@@ -17,6 +17,11 @@ def backtracking(total: int, arr: List[List[str]], removed: int, pins: List[Tupl
     # traverse candidates
     mx = removed
     for idx, (pi, pj) in enumerate(pins):
+
+        # removed pin
+        if pi < 0:
+            continue
+
         for di, dj in DIRECTION:
             ti = pi + di; tj = pj + dj  # target pin poistion
             ji = ti + di; jj = tj + dj  # target jump position
@@ -31,13 +36,16 @@ def backtracking(total: int, arr: List[List[str]], removed: int, pins: List[Tupl
             arr[pi][pj] = '.'
             arr[ti][tj] = '.'
             arr[ji][jj] = 'o'
-            new_pins = pins[:]
-            new_pins.pop(idx)
-            new_pins.remove((ti, tj))
-            new_pins.append((ji, jj))
 
-            # update the maximum
-            mx = max(backtracking(total, arr, removed + 1, new_pins), mx)
+            pins[idx][0] = ji
+            pins[idx][1] = jj
+
+            t_idx = pins.index([ti, tj])
+            memo = pins[t_idx][0] 
+            pins[t_idx][0] = -1
+
+            mx = max(backtracking(total, arr, removed + 1, pins), mx)
+
             if mx == total - 1:
                 return mx
             
@@ -45,6 +53,11 @@ def backtracking(total: int, arr: List[List[str]], removed: int, pins: List[Tupl
             arr[pi][pj] = 'o'
             arr[ti][tj] = 'o'
             arr[ji][jj] = '.'
+
+            pins[idx][0] = pi
+            pins[idx][1] = pj
+            pins[t_idx][0] = memo 
+
 
     return mx
     
@@ -56,7 +69,7 @@ def solution(arr: List[List[str]]) -> List[int]:
         for j in range(9):
             if arr[i][j] == 'o':
                 total += 1
-                pins.append((i, j))
+                pins.append([i, j])
 
     # run backtracking
     max_removed = backtracking(total, arr, 0, pins)
