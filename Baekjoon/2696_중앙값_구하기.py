@@ -1,49 +1,46 @@
-## 88ms
-## 최대 힙인 mn_heap과 최소 힙인 mx_heap을 두고, num의 값을 mn_heap[0], mx_heap[0]과 비교
+
 import heapq
 import sys
 input = sys.stdin.readline
 
-T = int(input())
-for t in range(1, T+1):
+def solution(N, nums):
+    min_heap = []
+    max_heap = [-nums[0]]
+    mid = [nums[0]]
 
-    N = int(input())
-    print(N // 2 + 1)
+    for i in range(1, N):
+        num = nums[i]
 
-    nums = []
-    for _ in range(N // 10 + 1):
-        nums += list(map(int, input().rstrip().split()))
-
-    mx_heap = []
-    mn_heap = []
-    moor = nums[0]
-    print_lst = [moor]
-    for i in range(1, N//2 + 1):
-        num_even = nums[2 * i - 1]
-        if num_even >= moor:
-            heapq.heappush(mx_heap, num_even)
-            heapq.heappush(mn_heap, -moor)
+        if num < mid[-1]:
+            heapq.heappush(max_heap, -num)
         else:
-            heapq.heappush(mx_heap, moor)
-            heapq.heappush(mn_heap, -num_even)
+            heapq.heappush(min_heap, num)
 
-        moor = nums[2 * i]
-        if moor < -mn_heap[0]:
-            tmp = moor
-            moor = -heapq.heappop(mn_heap)
-            heapq.heappush(mn_heap, -tmp)
-        elif moor > mx_heap[0]:
-            tmp = moor
-            moor = heapq.heappop(mx_heap)
-            heapq.heappush(mx_heap, tmp)
-        else:
-            pass
+        # balance the heaps : max 에 하나가 더 많도록
+        if len(min_heap) > len(max_heap):
+            heapq.heappush(max_heap, -heapq.heappop(min_heap))
+        elif len(max_heap) > len(min_heap) + 1:
+            heapq.heappush(min_heap, -heapq.heappop(max_heap))
 
-        print_lst.append(moor)
+        # find the mid
+        if i % 2 == 0:
+            mid.append(-max_heap[0])
 
-    if N < 21:
-        print(*print_lst)
-    else:
-        for i in range((N // 2 + 1)//10):
-            print(*print_lst[i*10:(i+1)*10])
-        print(*print_lst[(i+1)*10:])
+    answer = []
+    for i in range(len(mid) // 10 + 1):
+        answer.append(' '.join(map(str, mid[i * 10: (i + 1) * 10])))
+    return answer
+
+
+if __name__ == "__main__":
+    T = int(input())
+
+    for _ in range(T):
+        N = int(input())
+        nums = []
+        for _ in range(N // 10 + 1):
+            nums.extend(map(int, input().split()))
+
+        answer = solution(N, nums)
+
+        print(N // 2 + 1, *answer, sep='\n')
