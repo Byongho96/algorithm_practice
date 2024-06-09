@@ -1,24 +1,27 @@
 import sys
+import heapq
 
 input = sys.stdin.readline
 
 # 1. 작은 가방 부터 시작해서
 # 2. 가방에 넣을 수 있는 보석 중 가장 비싼 보석을 넣는다.
 def solution(N, K, jewels, bags):
-    jewels.sort(key=lambda x: -x[1]) # 가치 순으로 내림차순 정렬
+    jewels.sort() # 무게 순으로 오름차순 정렬
     bags.sort()
-    collected = [False] * N
 
-    answer = 0
+    sm = 0
+    idx = 0
+    value_heap = []
     for bag in bags:
-        for idx in range(N):
-            if jewels[idx][0] > bag or collected[idx]:
-                continue
-            collected[idx] = True
-            answer += jewels[idx][1]
-            break
+        # 가능한 보석을 모두 힙에 넣는다.
+        while idx < N and jewels[idx][0] < bag + 1:
+            heapq.heappush(value_heap, -jewels[idx][1])
+            idx += 1
+        # 가장 비싼 보석을 꺼낸다.
+        if value_heap:
+            sm -= heapq.heappop(value_heap)
 
-    return answer
+    return sm
 
 if __name__ == "__main__":
     N, K = map(int, input().split())
