@@ -1,86 +1,47 @@
+import sys
 from collections import deque
+input = sys.stdin.readline
 
-def shortest_round_path(N, adjLst, start, end):
-    going_path = [] # 가는 길 저장
+INF = 10001
 
-    distance = 0    # 총 거리
+def solution(N, M, adjLst, S, E, path):
+    visited = [False] * (N + 1)
 
-    for _ in range(2):  # 2번의 bfs
-        visited = [[] for _ in range(N + 1)] 
-        queue = deque()
+    # mark visited nodes
+    for node in path:
+        visited[node] = True
 
-        visited[start] = []
-        queue.append(start)
+    # set the start
+    visited[S] = True
+    queue = deque([(0, S, [])])
 
-        while queue:
-            node = queue.popleft()
-
-            if node == end: # 도착하면 거리 더해서 끝내기
-                going_path = visited[node]
-                distance += len(going_path)
-                break
-
-            for adj in adjLst[node]:    # 사전순으로 정렬되어 있는 adjLst 탐색
-                if not visited[adj] and not (adj in going_path):
-                    visited[adj] = visited[node] + [adj]
-                    queue.append(adj)
-
-        start, end = end, start # 시작점, 끝지점 바꾸기
+    # dijkstra
+    while queue:
+        dis, cur, path = deque.popleft(queue)
     
-    return  distance
+        if cur == E:
+            return dis, path
+
+        for adj in adjLst[cur]:
+            if visited[adj]:
+                continue
+            visited[adj] = True
+            queue.append([dis + 1, adj, path + [adj]])
+
 
 if __name__ == "__main__":
-    N, E = map(int, input().split())    # 노드 갯수, 간선 갯수
-    
-    adjLst=[[] for _ in range(N + 1)]    # 인접 리스트 딕셔너리 만들기
-    for _ in range(E):
-        n1, n2 = map(int, input().split())
-        adjLst[n1].append(n2)
-        adjLst[n2].append(n1)
-    for lst in adjLst:          # 인접 리스트 정렬
-        lst.sort()
+    N, M = map(int, input().split())
 
-    start, end = map(int, input().split())  # 시작점, 마지막점
+    adjLst = [[] for _ in range(N + 1)]
+    for _ in range(M):
+        i, j = map(int, input().split())
+        adjLst[i].append(j)
+        adjLst[j].append(i)
 
-    answer = shortest_round_path(N, adjLst, start, end)
-    print(answer)
+    for i in range(1, N + 1):
+        adjLst[i].sort()
 
-# from collections import deque
-# import sys
-# input = sys.stdin.readline
-
-# # 156ms
-# def bfs(s, e, path):
-#     visited = [0] * (N + 1)
-#     if path:
-#         for v in path[1:]:
-#             visited[v] = 1
-#     visited[s] = [s]
-
-#     q = deque()
-#     q.append(s)
-#     while q:
-#         v = q.popleft()
-#         for w in adjLst[v]:
-#             if not visited[w]:
-#                 if w == e:
-#                     return visited[v]
-#                 visited[w] = visited[v] + [w]
-#                 q.append(w)
-
-
-
-# N, M = map(int, input().split())
-# adjLst = [[] for _ in range(N+1)]
-# for _ in range(M):
-#     a, b = map(int, input().split())
-#     adjLst[a].append(b)
-#     adjLst[b].append(a)
-
-# for node in range(1, N + 1):
-#     adjLst[node].sort()
-
-# S, E = map(int, input().split())
-# going_path = bfs(S, E, [])
-# coming_path = bfs(S, E, going_path)
-# print(len(going_path) + len(coming_path))
+    S, E = map(int, input().split())
+    go_dis, go_path = solution(N, M, adjLst, S, E, [])
+    back_dis, _ = solution(N, M, adjLst, E, S, go_path)
+    print(go_dis + back_dis)
