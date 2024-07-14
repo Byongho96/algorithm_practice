@@ -1,125 +1,73 @@
-from pprint import pprint
-from collections import deque, defaultdict
 import sys
+from collections import defaultdict
+
 input = sys.stdin.readline
 
-def melting_bfs(i, j):
-    global num_ice
-    visited = [[0] * M for _ in range(N)]
-    visited[i][j] = 1
+DIRECTION = ((0, 1), (0, -1), (1, 0), (-1, 0))
 
-    q = deque()
-    q.append((i, j))
+def melt_iceberg(ice_bergs, arr):
+    visited = [[False] * M for _ in range(N)]
+    melted_ice = defaultdict(int)
+
+    stack = [(ice_bergs[0][0], ice_bergs[0][1])]
+    visited[ice_bergs[0][0]][ice_bergs[0][1]] = True
     cnt = 1
 
-    melt = defaultdict(int)
-    while q:
-        i, j = q.popleft()
-        for di, dj in ((1, 0), (0, 1), (-1, 0), (0, -1)):
-            ni = i + di
-            nj = j + dj
-            if 0 <= ni < N and 0 <= nj < M:
-                if arr[ni][nj] and not visited[ni][nj]:
-                    visited[ni][nj] = 1
-                    q.append((ni, nj))
-                    cnt += 1
-                elif not arr[ni][nj]:
+    while stack:
+        i, j = stack.pop()
 
-                    melt[(i, j)] += 1
+        for di, dj in DIRECTION:
+            ni, nj = i + di, j + dj
 
-    # 빙하 녹이기
-    if cnt == num_ice:
-        for pos, m in melt.items():
-            i, j = pos[0], pos[1]
-            arr[i][j] = max(0, arr[i][j] - m)
-            if not arr[i][j]:
-                ice.remove((i, j))
-                num_ice -= 1
-        return True
-    else:
+            if arr[ni][nj] == 0:
+                melted_ice[(i, j)] += 1
+                continue
+
+            elif not visited[ni][nj]:
+                cnt += 1
+                visited[ni][nj] = True
+                stack.append((ni, nj))
+
+    if cnt != len(ice_bergs):
         return False
 
-N, M = map(int, input().split())
-arr = [list(map(int, input().split())) for _ in range(N)]
+    for (i, j), melt in melted_ice.items():
+        if arr[i][j] > melt:
+            arr[i][j] -= melt
+        else:
+            arr[i][j] = 0
+            ice_bergs.remove((i, j))
 
-num_ice = 0
-ice = []
-for i in range(N):
-    for j in range(M):
-        if arr[i][j]:
-            num_ice += 1
-            ice.append((i, j))
+    return True
 
-year = 0
-while num_ice:
-    if melting_bfs(ice[0][0], ice[0][1]):
-        year += 1
-    else:
-        break
+def solution(N, M, arr):
+    # collect ice_bergs
+    ice_bergs = []
+    for i in range(N):
+        for j in range(M):
+            if arr[i][j]:
+                ice_bergs.append((i, j))
 
-if not num_ice:
-    print(0)
-else:
-    print(year)
+    # melt
+    step = 0
+    while len(ice_bergs):
+        step += 1
+        
+        # melt ice_bergs
+        was_connected = melt_iceberg(ice_bergs, arr)
 
-# def melting_bfs(i, j):
-#     global num_ice
-#     visited = [[0] * M for _ in range(N)]
-#     visited[i][j] = 1
-#
-#     q = deque()
-#     q.append((i, j))
-#     cnt = 1
-#
-#     melt = defaultdict(int)
-#     while q:
-#         i, j = q.popleft()
-#         for di, dj in ((1, 0), (0, 1), (-1, 0), (0, -1)):
-#             ni = i + di
-#             nj = j + dj
-#             if 0 <= ni < N and 0 <= nj < M:
-#                 if arr[ni][nj] and not visited[ni][nj]:
-#                     visited[ni][nj] = 1
-#                     q.append((ni, nj))
-#                     cnt += 1
-#                 elif not arr[ni][nj]:
-#                     melt[(i, j)] += 1
-#
-#     if cnt == num_ice:
-#         for pos, m in melt.items():
-#             i, j = pos[0], pos[1]
-#             arr[i][j] = max(0, arr[i][j] - m)
-#             if not arr[i][j]:
-#                 num_ice -= 1
-#         return True
-#     else:
-#         return False
-#
-# N, M = map(int, input().split())
-# arr = [list(map(int, input().split())) for _ in range(N)]
-#
-# num_ice = 0
-# for i in range(N):
-#     for j in range(M):
-#         if arr[i][j]:
-#             num_ice += 1
-#
-# year = 0
-# while num_ice:
-#     si, sj = -1, -1
-#     for i in range(N):
-#         for j in range(M):
-#             if arr[i][j]:
-#                 si, sj = i, j
-#                 break
-#         if si != -1:
-#             break
-#     if melting_bfs(si, sj):
-#         year += 1
-#     else:
-#         break
-#
-# if not num_ice:
-#     print(0)
-# else:
-#     print(year)
+        if not was_connected:
+            return step - 1
+        
+
+    return 0
+
+
+
+
+if __name__ == "__main__":
+    N, M = map(int, input().split())
+    arr = [list(map(int, input().split())) for _ in range(N)]
+
+    answer = solution(N, M, arr)
+    print(answer)

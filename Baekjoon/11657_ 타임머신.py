@@ -8,7 +8,7 @@ def dijkstra_with_minus_cycle(N, adjLst, start):
 
     # set the start point
     distance[start] = 0
-    heapq.heappush(heap, (start, 0, [0])) # path is for the tracking minus cycle
+    heapq.heappush(heap, (start, 0, 0 | 1 <start)) # path is for the tracking minus cycle
 
     while heap:
         cur, dis, path = heapq.heappop(heap)
@@ -22,11 +22,10 @@ def dijkstra_with_minus_cycle(N, adjLst, start):
             new_dis = dis + w
             if new_dis < distance[adj]:
                 # Return the function, if there's minus cycle
-                if adj in path:
+                if path >> adj & 1:
                     return False
                 distance[adj] = new_dis
-                new_path = path[:]
-                new_path.append(adj)
+                new_path = path | 1 << adj
                 heapq.heappush(heap, (adj, new_dis, new_path))
 
     return distance
