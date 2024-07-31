@@ -4,64 +4,55 @@ import sys
 
 input = sys.stdin.readline
 
-# DFS
-def memoize(N: int, adjLst: Tuple[List[int]], colors: str, start: int) -> List[int]:
-    memo = [-1] * (N + 1) 
+def solution(N: int, adjLst: Tuple[List[int]], colors: str) -> int:
+    start = colors.find('B')
+    if start < 0:
+        return  0
+    
+    # DFS
+    visited = [False] * (N + 1)
     red_group = defaultdict(set)
-    stack = []
 
-    cur, black = start, start
+    stack = [(start, None)]
+    visited[start] = True
 
-    while True:
-        # 노드 방문
-        memo[cur] = 0
+    while stack:
+        cur, red_root = stack.pop()
+
+        if colors[cur] == 'R':
+            red_group[red_root].add(cur)
+        else:
+            red_root = None
 
         # 깊이 우선 탐색
         for adj in adjLst[cur]:
 
-            if memo[adj] > -1:
+            if visited[adj]:
                 continue
 
-            stack.append((cur, black))
+            visited[adj] = True
 
-            cur = adj
-            if colors[cur] == 'B':
-                black = cur
-            else:
-                red_group[black].add(cur)
-            break
-
-        else:
-            if stack:
-                cur, black = stack.pop()
-                if cur == black: # colors[cur] == 'B'
-                    num_red = len(red_group[cur])
-                    for red in red_group[cur]:
-                        memo[red] = num_red
-                    del red_group[cur]
-
-            else:
-                break
-
-    return memo
+            stack.append((adj, red_root if red_root or colors[adj] != 'R' else adj))
 
 
-def solution(N:int, adjLst:Tuple[List[int]], colors:str) -> int:
-    black = colors.find('B')
-    if black < 0:
-        return  0
-    
-    memo = memoize(N, adjLst, colors, black)
+    # memoize
+    memo = [0] * (N + 1) 
+    for red_root in red_group:
+        num_red = len(red_group[red_root])
+        for red in red_group[red_root]:
+            memo[red] = num_red
 
+    # get answer
     answer = 0
-    for start in range(1, len(colors)):
-        if colors[start] != 'B':
+    for idx in range(1, N + 1):
+        if colors[idx] != 'B':
             continue
-
-        for adj in adjLst[start]:
+        for adj in adjLst[idx]:
             answer += memo[adj]
 
     return answer
+
+
 
 def find(parent, u):
     while parent[u] != u:
@@ -123,5 +114,5 @@ if __name__ == "__main__":
 
     colors = 'G' + input().rstrip()
 
-    answer = solution2(N, adjLst, colors)
+    answer = solution(N, adjLst, colors)
     print(answer)
