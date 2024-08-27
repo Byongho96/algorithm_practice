@@ -1,52 +1,75 @@
-# 2204 ms
 from itertools import combinations
-from collections import deque
 import sys
 input = sys.stdin.readline
 
-def bfs(starts):
-    global mn_infected
-    visited = [[0] * M for _ in range(N)]
-    q = deque()
+DIRECTION = None
+mn_contaminated = 0
 
-    for i, j in starts:
-       visited[i][j] = 1
-       q.append((i, j))
+def dfs(N, M, arr, start_points):
+    global mn_contaminated
+    visited = [False] * (N * M)
+    stack = [*start_points]
 
-    cnt = 0
-    while q:
-        i, j = q.popleft()
-        for di, dj in ((1, 0), (0, 1), (-1, 0), (0, -1)):
-            ni = i + di
-            nj = j + dj
-            if 0 <= ni < N and  0 <= nj < M and not arr[ni][nj] and not visited[ni][nj]:
-                visited[ni][nj] = 1
-                q.append((ni, nj))
-                cnt += 1                # 전염구간 카운팅
-                if cnt >= mn_infected:  # 전염구간이 최소 전염구간 이상이 되었을 경우, 종료
-                    return False
-    mn_infected = cnt
-    return True
+    for point in start_points:
+        visited[point] = True
 
-N, M = map(int, input().split())
-arr = [list(map(int, input().split())) for _ in range(N)]
+    contaminated = 0
+    while stack:
+        cur = stack.pop()
 
-zeros = []
-viruses = []
-for i in range(N):
-    for j in range(M):
-        if not arr[i][j]:
-            zeros.append((i, j))
-        elif arr[i][j] == 2:
-            viruses.append((i, j))
+        if not arr[cur]:
+            contaminated += 1
 
-mn_infected = N * M
-for comb in combinations(zeros, 3): # 3가지 combinations에 대해서 반복
-    for i, j in comb:                   # 벽세우기
-        arr[i][j] = 1
-    if bfs(viruses):                    # mn_infected가 최솟값으로 업데이트 되었을 경우
-        result = len(zeros) - 3 - mn_infected   # result 업데이트
-    for i, j in comb:                   # 벽 복원하기
-        arr[i][j] = 0
+        if contaminated > mn_contaminated - 1:
+            return contaminated
 
-print(result)
+        for d in DIRECTION:
+            nxt = cur + d
+            if visited[nxt] or arr[nxt]:
+                continue
+            visited[nxt] = True
+            stack.append(nxt)
+
+    return contaminated
+
+
+def solution(N, M, arr):
+    global DIRECTION
+    global mn_contaminated
+
+    possible_walls = []
+    start_points = []
+    for i in range(M + 1, N * M - M - 1):
+        if not arr[i]:
+            possible_walls.append(i)
+        elif arr[i] == 2:
+            start_points.append(i)
+
+    DIRECTION = (M, -M, 1, -1)
+    mn_contaminated = len(possible_walls)
+
+    for w1, w2, w3 in list(combinations(possible_walls, 3)):
+        arr[w1] = 1
+        arr[w2] = 1
+        arr[w3] = 1
+
+        mn_contaminated = min(mn_contaminated, dfs(N, M, arr, start_points))
+
+        arr[w1] = 0
+        arr[w2] = 0
+        arr[w3] = 0
+
+    return len(possible_walls) - mn_contaminated - 3
+
+if __name__ == "__main__":
+    N, M = map(int, input().split())
+    N += 2
+    M += 2
+
+    # 가장자리를 1로 감싸서 1차원 배열로 받기
+    arr = [1] * (N * M)
+    for i in range(1, N - 1):
+        arr[i * M + 1: (i + 1) * M - 1] = list(map(int, input().split()))
+
+    answer = solution(N, M, arr)
+    print(answer)
