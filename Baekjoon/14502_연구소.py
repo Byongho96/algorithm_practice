@@ -63,10 +63,10 @@ def solution(N, M, arr):
 
 if __name__ == "__main__":
     N, M = map(int, input().split())
-    N += 2
-    M += 2
 
     # 가장자리를 1로 감싸서 1차원 배열로 받기
+    N += 2
+    M += 2
     arr = [1] * (N * M)
     for i in range(1, N - 1):
         arr[i * M + 1: (i + 1) * M - 1] = list(map(int, input().split()))
