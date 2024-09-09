@@ -1,49 +1,47 @@
 import sys
-
 input = sys.stdin.readline
 
-if __name__ == "__main__":
-    N = int(input())
-    time_list = [list(map(int, input().split())) for _ in range(N)]
+def solution(N, waiting_list):
+    entered = [False] * N
+    waiting_list.sort(key=lambda x: (x[1], x[0]))   # 도착 시간, 예약시간 순으로 정렬
 
-    # sort by arrive -> reserve
-    time_list.sort(key=lambda x: (x[1], x[0]))
-
-    # check the person arrived earlier than reservation
-    book = dict()
+    immediately_enter_map = {}  # 즉시 입장하는 손님들, 도착 시간이 예약 시간보다 빠른 경우
     for i in range(N):
-        reserve, arrive = time_list[i]
-        if arrive < reserve + 1:
-            book[reserve] = (i, arrive)
+        if waiting_list[i][1] < waiting_list[i][0] + 1: 
+            immediately_enter_map[waiting_list[i][0]] = i
 
-    mx = 0
-    idx = 0
-    time = time_list[0][1]
-    visited = [False] * N
+    answer = 0
+
+    idx = 0 # 대기 손님 인덱스
+    cur_time = waiting_list[0][1]
     while idx < N:
-        reserve, arrive = time_list[idx]
+        # 예약 손님이 있을 경우, 먼저 입장
+        reserved_idx = immediately_enter_map.get(cur_time)
+        if reserved_idx and not entered[reserved_idx]:
+            entered[reserved_idx] = True
+            answer = max(answer, cur_time - waiting_list[reserved_idx][1])
+            cur_time += 1
+            continue
 
-        # if already entered
-        if visited[idx]:
+        if entered[idx]:
             idx += 1
             continue
 
-        # if there's reservation
-        reserve_idx, reserve_arrive = book.get(time, (None, None))
-        if reserve_idx and not visited[reserve_idx]:
-            mx = max(mx, time - reserve_arrive)
-            visited[reserve_idx] = True
-            time += 1
+        # 가장 앞의 손님 입장
+        if (waiting_list[idx][1] < cur_time + 1):
+            entered[idx] = True
+            answer = max(answer, cur_time - waiting_list[idx][1])
+            idx += 1
+            cur_time += 1
             continue
 
-        # if not arrived
-        if time < arrive:
-            time = arrive
-            continue
+        cur_time = waiting_list[idx][1] # 다음 대기 손님 시간
 
-        visited[idx] = True
-        mx = max(mx, time - arrive)
-        idx += 1
-        time += 1
+    return answer
 
-    print(mx)
+if __name__ == "__main__":
+    N = int(input())
+    arr = [list(map(int, input().split())) for _ in range(N)]
+
+    answer = solution(N, arr)
+    print(answer)
